@@ -446,5 +446,210 @@ ret
 gamePlay ENDP
 ;#############################################################################
 
+WndProc proc hWin   :DWORD,
+             uMsg   :DWORD,
+             wParam :DWORD,
+             lParam :DWORD
+
+    LOCAL var    :DWORD
+    LOCAL caW    :DWORD
+    LOCAL caH    :DWORD
+    LOCAL Rct    :RECT
+    LOCAL hDC    :DWORD
+    LOCAL Ps     :PAINTSTRUCT
+    LOCAL buffer1[128]:BYTE  ; these are two spare buffers
+    LOCAL buffer2[128]:BYTE  ; for text manipulation etc..
+	LOCAL hStatImage :DWORD
+	LOCAL posX :DWORD
+	LOCAL posY :DWORD
+
+
+    .if uMsg == WM_COMMAND
+		mov eax, wParam
+		.if eax == 510
+			invoke dwtoa, score_count, addr score_s
+			invoke MessageBox,hWin,ADDR score_s,ADDR szDisplayName,MB_OK
+		.endif
+
+    ;======== menu commands ========
+    .elseif uMsg == WM_CREATE
+		
+		invoke BmpButton, hWin, 830, 2, 301, 301, 510
+
+		invoke LoadBitmap, hInstance, 301
+		mov score, eax
+		invoke LoadBitmap, hInstance, 302
+		mov border, eax
+
+		invoke LoadBitmap, hInstance, 321
+		mov move_img, eax
+		invoke LoadBitmap, hInstance, 322
+		mov move_border, eax
+
+		invoke LoadBitmap, hInstance, 323
+		mov win, eax
+		invoke LoadBitmap, hInstance, 324
+		mov lose, eax
+		
+		invoke LoadBitmap, hInstance, 310
+		mov zero, eax
+		invoke LoadBitmap, hInstance, 311
+		mov one, eax
+		invoke LoadBitmap, hInstance, 312
+		mov two, eax
+		invoke LoadBitmap, hInstance, 313
+		mov three, eax
+		invoke LoadBitmap, hInstance, 314
+		mov four, eax
+		invoke LoadBitmap, hInstance, 315
+		mov five, eax
+		invoke LoadBitmap, hInstance, 316
+		mov six, eax
+		invoke LoadBitmap, hInstance, 317
+		mov seven, eax
+		invoke LoadBitmap, hInstance, 318
+		mov eight, eax
+		invoke LoadBitmap, hInstance, 319
+		mov nine, eax
+		;invoke StaticImage,NULL,hWin,0,0,10,10,501
+		;mov hStatImage, eax
+		invoke LoadBitmap, hInstance, 201
+		mov hBmp, eax
+		invoke LoadBitmap, hInstance, 1
+		mov red, eax
+		invoke LoadBitmap, hInstance, 2
+		mov blue, eax
+		invoke LoadBitmap, hInstance, 3
+		mov yellow, eax
+		invoke LoadBitmap, hInstance, 4
+		mov purple, eax
+		invoke LoadBitmap, hInstance, 5
+		mov green, eax
+		invoke LoadBitmap, hInstance, 6
+		mov orange, eax
+		invoke LoadBitmap, hInstance, 7
+		mov empty, eax
+		;invoke SendMessage,hStatImage,STM_SETIMAGE,IMAGE_BITMAP,hBmp
+
+		mov ebx,0
+		push ebx
+		
+		;call gamePlay
+
+	.elseif uMsg == WM_LBUTTONDOWN && getUserInp==1 && moves>0
+		
+		invoke GetCursorPos, ADDR position
+		invoke SetCursorPos, position.x, position.y
+		.IF (position.x > 100 && position.x < 800 && position.y > 2 && position.y < 702)
+			
+			mov eax,position.x
+			sub eax,100
+			mov posX,eax
+
+			mov eax,position.y
+			sub eax,2
+			mov posY,eax
+
+			mov eax, posX
+			mov ecx, 70
+			div ecx
+			mov btnID, al
+			mov edx,0
+
+			mov eax, posY
+			mov ecx, 70
+			div ecx
+				
+			mov ecx,10			
+			mul ecx
+			
+			add btnID,al			
+			movzx eax,btnID
+
+			call getInput
+
+	.ENDIF
+
+	.elseif uMsg == WM_PAINT
+        invoke BeginPaint,hWin,ADDR Ps
+          mov hDC, eax
+          invoke Paint_Proc,hWin,hDC
+       invoke EndPaint,hWin,ADDR Ps   
+		;invoke game, hWin
+        return 0
+
+    .elseif uMsg == WM_CLOSE
+
+    .elseif uMsg == WM_DESTROY
+        invoke PostQuitMessage,NULL
+        return 0 
+    .endif
+
+    invoke DefWindowProc,hWin,uMsg,wParam,lParam
+
+    ret
+
+WndProc endp
+
+; ########################################################################
+
+TopXY proc wDim:DWORD, sDim:DWORD
+
+    shr sDim, 1      ; divide screen dimension by 2
+    shr wDim, 1      ; divide window dimension by 2
+    mov eax, wDim    ; copy window dimension into eax
+    sub sDim, eax    ; sub half win dimension from half screen dimension
+
+    return sDim
+	
+TopXY endp
+
+; ########################################################################
+
+ScoreP proc 
+
+   mov edx,0
+   mov eax,score_count
+   mov esi,10
+   div esi
+
+   mov scr3d,edx
+   mov edx,0
+
+   div esi
+   mov scr2d,edx
+   mov edx,0
+
+   div esi
+   mov scr1d,edx
+   mov edx,0
+
+ret	
+ScoreP endp
+
+
+; ########################################################################
+
+MoveP proc 
+
+   mov edx,0
+   mov eax,moves
+   mov esi,10
+   div esi
+
+   mov moves2d,edx
+   mov edx,0
+
+   div esi
+   mov moves1d,edx
+   mov edx,0
+
+ret	
+MoveP endp
+
+
+; ########################################################################
+
+
 
 end start
