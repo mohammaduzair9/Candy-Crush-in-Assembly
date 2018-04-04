@@ -650,6 +650,194 @@ MoveP endp
 
 ; ########################################################################
 
+Paint_Proc proc hWin:DWORD, hDC:DWORD
+	LOCAL candy_x :DWORD		; x-axis position
+	LOCAL candy_y :DWORD		; y-axis position
+	LOCAL candy_id :DWORD		; unique for every candy to identify
+	LOCAL score_x :DWORD
+	LOCAL score_y :DWORD
+	
+    LOCAL hOld:DWORD
+    LOCAL memDC :DWORD
 
+    invoke CreateCompatibleDC,hDC
+    mov memDC, eax
+
+	mov score_x, 935
+	mov score_y, 52
+    
+	invoke SelectObject,memDC,hBmp
+    mov hOld, eax
+	invoke BitBlt,hDC,0,0,1380,710,memDC,30,70,SRCCOPY	
+	
+	invoke SelectObject,memDC,score
+    mov hOld, eax
+	invoke BitBlt,hDC,830,2,1380,710,memDC,0,0,SRCCOPY	
+
+	invoke SelectObject,memDC,border
+    mov hOld, eax
+	invoke BitBlt,hDC,830,52,1380,710,memDC,0,0,SRCCOPY	
+	
+	invoke SelectObject,memDC,move_img
+    mov hOld, eax
+	invoke BitBlt,hDC,830,112,1380,710,memDC,0,0,SRCCOPY	
+
+	invoke SelectObject,memDC,move_border
+    mov hOld, eax
+	invoke BitBlt,hDC,830,162,1380,710,memDC,0,0,SRCCOPY	
+
+	.IF moves > 0
+	.IF paint == 1
+	mov candy_x, 100
+	mov candy_y, 2
+	
+	mov esi,0
+	mov ebx,0
+	.WHILE esi<100
+		.WHILE ebx<10
+			movzx eax,BoardArr[esi]
+			mov candy_type, eax
+			mov candy_id,esi
+			.IF candy_type == 0
+				mov candy_type,7
+			.ENDIF
+		
+		.IF candy_type == 1
+			invoke SelectObject,memDC,red
+			mov hOld, eax
+			invoke BitBlt,hDC,candy_x,candy_y,1380,710,memDC,0,0,SRCCOPY	
+		.ELSEIF candy_type == 2
+			invoke SelectObject,memDC,blue
+			mov hOld, eax
+			invoke BitBlt,hDC,candy_x,candy_y,1380,710,memDC,0,0,SRCCOPY	
+		.ELSEIF candy_type == 3
+			invoke SelectObject,memDC,yellow
+			mov hOld, eax
+			invoke BitBlt,hDC,candy_x,candy_y,1380,710,memDC,0,0,SRCCOPY	
+		.ELSEIF candy_type == 4
+			invoke SelectObject,memDC,purple
+		    mov hOld, eax
+			invoke BitBlt,hDC,candy_x,candy_y,1380,710,memDC,0,0,SRCCOPY	
+		.ELSEIF candy_type == 5
+			invoke SelectObject,memDC,green
+			mov hOld, eax
+			invoke BitBlt,hDC,candy_x,candy_y,1380,710,memDC,0,0,SRCCOPY	
+		.ELSEIF candy_type == 6
+			invoke SelectObject,memDC,orange
+			mov hOld, eax
+			invoke BitBlt,hDC,candy_x,candy_y,1380,710,memDC,0,0,SRCCOPY
+		.ELSEIF candy_type == 7
+			invoke SelectObject,memDC,empty
+			mov hOld, eax
+			invoke BitBlt,hDC,candy_x,candy_y,1380,710,memDC,0,0,SRCCOPY				
+		.ENDIF	
+	
+			add candy_x,70
+			inc ebx
+			inc esi
+		.ENDW
+		mov candy_x,100
+		add candy_y,70
+		mov ebx,0
+	.ENDW
+	mov paint, 0
+	invoke Sleep, 200
+	.ENDIF
+	.ENDIF
+
+	call ScoreP
+	call MoveP
+	mov esi,0
+	mov eax,scr3d
+	.WHILE esi<5
+		.IF eax==0
+			invoke SelectObject,memDC,zero
+			mov hOld, eax
+			invoke BitBlt,hDC,score_x,score_y,1380,710,memDC,0,0,SRCCOPY
+				
+		.ELSEIF eax==1
+			invoke SelectObject,memDC,one
+			mov hOld, eax
+			invoke BitBlt,hDC,score_x,score_y,1380,710,memDC,0,0,SRCCOPY	
+
+		.ELSEIF eax==2
+			invoke SelectObject,memDC,two
+			mov hOld, eax
+			invoke BitBlt,hDC,score_x,score_y,1380,710,memDC,0,0,SRCCOPY	
+
+		.ELSEIF eax==3
+			invoke SelectObject,memDC,three
+			mov hOld, eax
+			invoke BitBlt,hDC,score_x,score_y,1380,710,memDC,0,0,SRCCOPY	
+
+		.ELSEIF eax==4
+			invoke SelectObject,memDC,four
+			mov hOld, eax
+			invoke BitBlt,hDC,score_x,score_y,1380,710,memDC,0,0,SRCCOPY	
+
+		.ELSEIF eax==5
+			invoke SelectObject,memDC,five
+			mov hOld, eax
+			invoke BitBlt,hDC,score_x,score_y,1380,710,memDC,0,0,SRCCOPY	
+
+		.ELSEIF eax==6
+			invoke SelectObject,memDC,six
+			mov hOld, eax
+			invoke BitBlt,hDC,score_x,score_y,1380,710,memDC,0,0,SRCCOPY	
+
+		.ELSEIF eax==7
+			invoke SelectObject,memDC,seven
+			mov hOld, eax
+			invoke BitBlt,hDC,score_x,score_y,1380,710,memDC,0,0,SRCCOPY	
+
+		.ELSEIF eax==8
+			invoke SelectObject,memDC,eight
+			mov hOld, eax
+			invoke BitBlt,hDC,score_x,score_y,1380,710,memDC,0,0,SRCCOPY	
+
+		.ELSEIF eax==9
+			invoke SelectObject,memDC,nine
+			mov hOld, eax
+			invoke BitBlt,hDC,score_x,score_y,1380,710,memDC,0,0,SRCCOPY	
+		.ENDIF
+
+		inc esi
+		.if esi==1
+			mov eax,scr2d
+			sub score_x, 35
+		.elseif esi==2
+			mov eax,scr1d
+			sub score_x, 35
+		.elseif esi==3
+			mov eax,moves2d
+			add score_x, 60
+			mov score_y,162
+		.elseif esi==4
+			mov eax,moves1d
+			sub score_x, 35
+		.endif
+		
+	.ENDW
+
+	.IF moves == 0
+		.IF score_count >= 200
+			invoke SelectObject,memDC,win
+			mov hOld, eax
+			invoke BitBlt,hDC,100,2,1380,710,memDC,0,0,SRCCOPY
+		.ELSEIF 
+			invoke SelectObject,memDC,lose
+			mov hOld, eax
+			invoke BitBlt,hDC,100,2,1380,710,memDC,0,0,SRCCOPY
+		.ENDIF
+	.ENDIF
+
+    invoke SelectObject,hDC,hOld
+    invoke DeleteDC,memDC
+	
+    return 0
+
+Paint_Proc endp
+
+; ########################################################################
 
 end start
