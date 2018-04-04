@@ -332,8 +332,119 @@ mov eax,1
 RET
 checkPair ENDP
 
+; ########################################################################
+checkMove PROC
+mov eax,0
+mov al,Inp1
+sub al,Inp2
 
+.IF (eax==1 || eax==255)	;checking for horizontal swap
+	mov eax,0				;inner check to prevent last col and first col swap
+	mov ecx,0
+	mov cl,10
+	mov al, Inp1
+	div cl
+	mov bl,al
+	mov eax,0
+	mov cl,10
+	mov al, Inp2
+	div cl
+	cmp al,bl
+	jne endCheckMove		;wrong input end move
+	jmp check2				;first check pass
+
+.ELSEIF (eax==10 || eax==246)
+	jmp check2			;first check pass
+
+.ELSE
+mov eax,0
+jmp endCheckMove		;first check failed, wrong input
+
+.ENDIF
+ 
+check2:				;second check, pair check
+call checkPair
+RET
+endCheckMove:
+mov eax,0
+RET
+checkMove ENDP
 
 ; ########################################################################
+;update_maze PROC hWin:DWORD
+
+;	ret
+;update_maze ENDP
+
+;#############################################################################
+
+getInput PROC
+	.IF Inp1==100
+		invoke Beep, 1000, 300  ;beep for testing
+		movzx ecx,btnID
+		mov Inp1,cl
+		;mov btnID,100
+	.ELSEIF Inp2==100
+		invoke Beep, 600, 300  ;beep for testing
+		movzx ecx,btnID
+		mov Inp2,cl
+		mov getUserInp,2
+	.ENDIF
+RET
+getInput ENDP
+
+;#############################################################################
+gamePlay PROC
+	LOCAL retAdd:DWORD
+	LOCAL hWin:DWORD
+	pop ecx
+	mov retAdd,ecx
+
+	.if(getUserInp==2)
+		call checkMove
+		mov Inp1,100
+		mov Inp2,100
+		.if(eax==0)
+			mov getUserInp,1
+		.elseif(eax==1)
+			mov getUserInp,0
+			dec moves
+		.endif
+	.endif
+		.if(data==0)
+			call genNewCandies
+			mov data,1
+			jmp printNow
+
+		.elseif(data==1)
+			call popPairs
+			.IF eax!=1
+				mov getUserInp,1
+			.ENDIF
+			mov data,2
+			jmp printNow
+
+		.elseif(data==2)
+			call moveDown
+			mov data,0
+			jmp printNow
+		.endif
+	
+		printNow: 
+		mov paint,1
+		invoke InvalidateRect, hWnd, NULL, FALSE
+		invoke UpdateWindow,hWnd
+		
+		;.IF(eax==0)
+		;call getInput
+		;	call checkMove
+		;.ENDIF
+
+	mov ecx,retAdd
+	push ecx
+ret
+gamePlay ENDP
+;#############################################################################
+
 
 end start
