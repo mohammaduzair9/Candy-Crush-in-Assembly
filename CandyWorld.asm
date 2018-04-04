@@ -133,4 +133,130 @@ StaticImage proc lpText:DWORD,hParent:DWORD,
 
 StaticImage endp
 
+; #########################################################################
+moveDown PROC
+
+mov ecx,0
+mov esi,99
+.WHILE esi>9
+
+.IF (BoardArr[esi]==0 && BoardArr[esi-10]>0)		;non consecutive zeros movedown
+mov eax,0
+mov al,BoardArr[esi-10]					;swapping
+mov BoardArr[esi-10],0
+mov BoardArr[esi],al
+mov ecx,1
+
+.ELSEIF (BoardArr[esi]==0 && BoardArr[esi-10]==0)	;consecutive zeros movedown
+mov eax,esi
+again:
+sub eax,10
+cmp BoardArr[eax],0
+jne outJump
+cmp eax,10
+js outJump
+jmp again
+outJump:
+mov ebx,0
+mov bl,BoardArr[eax]					;swapping
+mov BoardArr[esi],bl
+mov BoardArr[eax],0
+mov ecx,1
+
+.ENDIF
+dec esi
+.ENDW
+mov eax,ecx
+RET
+moveDown ENDP
+
+; ##################################################################################
+popPairs PROC
+
+mov esi,0
+.WHILE esi < 100		;checking for horizontal pairs
+
+movzx eax,BoardArr[esi]
+.IF ((BoardArr[esi+1]==al)&&(BoardArr[esi+2]==al))
+.WHILE(BoardArr[esi]==al)
+mov ebx,eax
+mov ecx,10
+mov edx,0
+mul ecx
+mov BoardArr[esi],al
+inc esi
+
+mov eax,esi
+div ecx
+.IF edx==0
+jmp breakloop
+.ENDIF 
+
+mov eax,ebx
+.ENDW	
+.ELSE
+inc esi
+mov eax,0
+mov edx,0
+mov ebx,0
+mov eax,esi
+mov ebx,10
+div ebx
+.IF(edx>7)
+inc eax
+mul ebx
+mov esi,eax
+.ENDIF
+breakloop:
+.ENDIF
+.ENDW
+
+mov esi,0
+.WHILE esi < 100		;checking for vertical pairs
+
+movzx eax,BoardArr[esi]		;checking already paired values
+.IF eax<=Ctype
+mov ecx,10
+mul ecx
+mov ecx,eax
+.ELSE
+mov ecx,10
+div ecx
+mov ecx,eax
+.ENDIF
+movzx eax,BoardArr[esi]
+
+.IF ((BoardArr[esi+10]==al || BoardArr[esi+10]==cl)&&(BoardArr[esi+20]==al || BoardArr[esi+20]==cl))
+mov ebx,esi
+.WHILE(BoardArr[ebx]==al || BoardArr[ebx]==cl)
+push eax
+mov edx,10
+mul edx
+mov BoardArr[ebx],al
+add ebx,10
+pop eax
+.ENDW	
+.ENDIF
+inc esi
+.ENDW
+
+;;;;popping values;;;;
+mov esi,0
+.WHILE esi < 100
+mov ebx,Ctype
+.IF(BoardArr[esi]>bl)
+mov BoardArr[esi],0
+inc score_count
+mov eax,1
+.ENDIF
+inc esi
+.ENDW
+
+RET
+popPairs ENDP
+
+
+
+; ########################################################################
+
 end start
