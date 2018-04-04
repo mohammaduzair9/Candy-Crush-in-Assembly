@@ -256,6 +256,83 @@ RET
 popPairs ENDP
 
 
+; #########################################################################
+genNewCandies PROC
+
+invoke GetTickCount
+invoke nseed,eax
+
+mov esi,0
+.WHILE esi<100
+
+.IF (BoardArr[esi]==0)
+	invoke nrandom,6
+	inc eax
+	mov BoardArr[esi],al
+.ENDIF
+
+inc esi
+.ENDW
+
+RET
+genNewCandies ENDP
+; ########################################################################
+swap PROC
+
+mov eax,0
+mov ebx,0
+mov ecx,0
+mov al,Inp1
+mov bl,Inp2
+mov dl, BoardArr[eax]
+mov cl, BoardArr[ebx]
+mov BoardArr[eax],cl
+mov BoardArr[ebx],dl
+
+RET
+swap ENDP
+
+; ########################################################################
+checkPair PROC
+mov eax,0
+mov ebx,0
+mov ecx,0
+mov esi,0
+
+call swap			;swapping values
+
+.WHILE esi < 99		;checking for pairs
+
+movzx eax,BoardArr[esi]
+.IF ((BoardArr[esi+1]==al) &&(BoardArr[esi+2]==al))
+mov eax,0
+mov ecx,10
+mov edx,0
+mov eax,esi
+div ecx
+cmp edx,7
+.IF edx<=7
+mov eax,1
+jmp found
+.ENDIF
+;jbe found
+inc esi
+.ELSEIF ((BoardArr[esi+10]==al) &&(BoardArr[esi+20]==al))
+mov eax,1
+jmp found
+.ELSE
+inc esi
+.ENDIF
+.ENDW
+mov eax,0
+call swap	;if no pairs found then revert swap
+RET
+found:		;if found kepp swap
+mov eax,1
+RET
+checkPair ENDP
+
+
 
 ; ########################################################################
 
